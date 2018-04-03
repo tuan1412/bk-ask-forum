@@ -6,8 +6,8 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import ptpmcn.model.User;
 
-@EnableJpaAuditing(auditorAwareRef="auditorProvider")
 @Configuration
+@EnableJpaAuditing(auditorAwareRef="auditorProvider")
 public class PersistenceConfig {
 	@Bean
 	public AuditorAware<User> auditorProvider() {

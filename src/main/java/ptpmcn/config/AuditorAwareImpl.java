@@ -9,13 +9,13 @@ import ptpmcn.model.User;
 import ptpmcn.service.SecurityContextService;
 
 public class AuditorAwareImpl implements AuditorAware<User> {
+
 	
 	@Autowired
 	private SecurityContextService securityContextService;
 	
 	@Override
 	public Optional<User> getCurrentAuditor() {
-		return securityContextService.getCurrentUser();
+        return securityContextService.getCurrentUser();
 	}
-
 }

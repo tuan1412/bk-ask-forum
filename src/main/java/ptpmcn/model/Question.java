@@ -1,5 +1,6 @@
 package ptpmcn.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +15,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
@@ -23,9 +23,13 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -34,17 +38,24 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class Question {
+public class Question implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@NotBlank
+	@NonNull
 	private String content;
 	
-	private int vote;
+	private int vote = 0;
 	
+
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@CreatedBy
 	private User user;
@@ -57,14 +68,13 @@ public class Question {
 	@Column(nullable = false, updatable = true)
 	private LocalDateTime lastModified;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Category category;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Answer> answers = new HashSet<>();
 	
-	public void setCategory(Category category) {
-		this.category = category;
-		category.setQuestion(this);
-	}
+
 }

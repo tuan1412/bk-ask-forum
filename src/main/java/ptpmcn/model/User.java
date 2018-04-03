@@ -16,8 +16,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
@@ -26,6 +30,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -39,6 +45,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @EqualsAndHashCode(of= {"id"})
+@NamedEntityGraph(name = "User.roles",
+attributeNodes = @NamedAttributeNode("roles"))
 public class User implements UserDetails {
 	
 	private static final long serialVersionUID = 1L;
@@ -60,43 +68,65 @@ public class User implements UserDetails {
 	
 	@Email
 	private String email;
-	
+
 	private boolean banned = false;
-	
+		
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createAt;
 	
+	@JsonIgnore
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name = "user_role",
 				joinColumns = @JoinColumn(name = "user_id"),
 				inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 	
+	@Transient
+	private int followers;
+	@Transient
+	private int vote;
+	@PostLoad
+	private void postLoad() {
+		int answerVote = answers.stream()
+								.map(Answer::getVote)
+								.reduce(Integer::sum)
+								.orElse(0);
+		vote =answerVote;
+		
+		followers = followingUsers.size();
+	}
+	
+	@JsonIgnore
 	@OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
 	private Set<Question> questions = new HashSet<>();
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
 	private Set<Answer> answers = new HashSet<>();
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
 	private Set<Notification> notifications = new HashSet<>();
 	
+	@JsonIgnore
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name = "user_question",
 				joinColumns = @JoinColumn(name = "user_id"),
 				inverseJoinColumns = @JoinColumn(name = "follow_question_id"))
 	private Set<Question> followQuestions = new HashSet<>();
 	
+	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "user_follow",
 			   joinColumns = @JoinColumn(name = "following_id"),
 			   inverseJoinColumns = @JoinColumn(name = "followed_id"))
 	
-	private Set<User> followingUsers = new HashSet<>();
-	
-	@ManyToMany(mappedBy="followingUsers")
 	private Set<User> followedUsers = new HashSet<>();
+	
+	@JsonIgnore
+	@ManyToMany(mappedBy="followedUsers")
+	private Set<User> followingUsers = new HashSet<>();
 	
 	public void addRole(Role role) {
 		roles.add(role);
@@ -112,18 +142,22 @@ public class User implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toSet());
 	}
+	@JsonIgnore
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
+	@JsonIgnore
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
 	}
+	@JsonIgnore
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
+	@JsonIgnore
 	@Override
 	public boolean isEnabled() {
 		return true;
