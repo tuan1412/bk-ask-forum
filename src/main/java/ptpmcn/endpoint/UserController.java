@@ -50,7 +50,7 @@ public class UserController {
 	public User get(@RequestParam("username") String username) {
 		return userRepository.findOneByUsername(username).get();
 	}
-	@GetMapping()
+	@GetMapping
 	public List<UserDto> getPageUser(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
 			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
 			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,

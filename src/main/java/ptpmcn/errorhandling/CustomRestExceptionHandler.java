@@ -3,6 +3,7 @@ package ptpmcn.errorhandling;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +37,11 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex,WebRequest request){
 		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), "Not found resource");
 		return new ResponseEntity<ApiError>(apiError, new HttpHeaders(), apiError.getStatus());	
+	}
+	
+	@ExceptionHandler(EmptyResultDataAccessException.class)
+	public ResponseEntity<ApiError> handleEmptyDeleteResult(EmptyResultDataAccessException ex, WebRequest request){
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Argument not vaild", "Not delete resource");
+		return new ResponseEntity<ApiError>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 }
