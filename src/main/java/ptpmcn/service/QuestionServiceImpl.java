@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import ptpmcn.dto.QuestionCreateDto;
 import ptpmcn.dto.QuestionDto;
-import ptpmcn.dto.UserDto;
 import ptpmcn.model.Category;
 import ptpmcn.model.Question;
 import ptpmcn.repository.CategoryRepository;

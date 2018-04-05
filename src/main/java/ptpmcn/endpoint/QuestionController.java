@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -66,7 +65,7 @@ public class QuestionController {
 	}
 	
 	@GetMapping("category")
-	public List<QuestionDto> getPageQuestionByUserId(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
+	public List<QuestionDto> getPageQuestionByCategory(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
 			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
 			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,
 			@RequestParam("name") String name,
