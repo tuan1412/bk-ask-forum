@@ -11,7 +11,7 @@ import ptpmcn.model.Question;
 
 public interface QuestionService {
 
-	Question save(QuestionCreateDto questionDto);
+	QuestionDto save(QuestionCreateDto questionDto);
 	
 	void deleteById(Long id);
 	
@@ -26,7 +26,7 @@ public interface QuestionService {
 
 	Page<QuestionDto> findPaginatedByAnswers(int sizeOfAnswers, int page, int size, Direction direction, String feild);
 
-	boolean update(Long id, QuestionCreateDto questionDto);
+	void update(Long id, QuestionCreateDto questionDto);
 	
 	Question update(Question question);
 

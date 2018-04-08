@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,6 @@ import ptpmcn.dto.UserRegistrationDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.User;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
-import ptpmcn.repository.UserRepository;
 import ptpmcn.service.UserService;
 import ptpmcn.util.SortUtil;
 
@@ -36,20 +36,15 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-	
-	@Autowired
-	private UserRepository userRepository;
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public User register(@Valid @RequestBody UserRegistrationDto userDto) {
-		return userService.save(userDto);
+	public void register(@Valid @RequestBody UserRegistrationDto userDto) {
+		userService.save(userDto);
 	}
 	
-	@GetMapping(params= {"username"})
-	public User get(@RequestParam("username") String username) {
-		return userRepository.findOneByUsername(username).get();
-	}
+	
+	
 	@GetMapping
 	public List<UserDto> getPageUser(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
 			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
@@ -70,4 +65,17 @@ public class UserController {
 	public UserDto getOne(@PathVariable("id") Long id) {
 		return userService.findOne(id).orElseThrow(ResourceNotFoundException::new);
 	}
+	
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@GetMapping("{id}/ban")
+	public void banUser(@PathVariable("id") Long id) {
+		userService.banUser(id);
+	}
+	
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@GetMapping("{id}/unban")
+	public void unbanUser(@PathVariable("id") Long id) {
+		userService.unbanUser(id);
+	}
+	
 }

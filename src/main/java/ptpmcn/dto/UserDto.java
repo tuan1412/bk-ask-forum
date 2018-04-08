@@ -2,9 +2,6 @@ package ptpmcn.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Set;
-
-import org.springframework.security.core.GrantedAuthority;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +19,7 @@ public class UserDto implements Serializable {
 	private String fullname;
 	private LocalDateTime createAt;
 	private String email;
-	private Set<? extends GrantedAuthority> authorities;
 	private int vote;
 	private int followers;
+	private boolean banned;
 }

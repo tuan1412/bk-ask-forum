@@ -69,6 +69,7 @@ public class User implements UserDetails {
 	@Email
 	private String email;
 
+	@Transient
 	private boolean banned = false;
 		
 	@CreatedDate
@@ -92,9 +93,11 @@ public class User implements UserDetails {
 								.map(Answer::getVote)
 								.reduce(Integer::sum)
 								.orElse(0);
-		vote =answerVote;
+		vote = answerVote;
 		
 		followers = followingUsers.size();
+		
+		banned = roles.isEmpty();
 	}
 	
 	@JsonIgnore
@@ -136,6 +139,30 @@ public class User implements UserDetails {
 	public void removeRole(Role role) {
 		roles.remove(role);
 		role.getUsers().remove(this);
+	}
+	
+	public void followQuestion(Question question) {
+		followQuestions.add(question);
+		question.getUsers().add(this);
+	}
+	
+	public void unfollowQuestion(Question question) {
+		followQuestions.remove(question);
+		question.getUsers().remove(this);
+	}
+	
+	public void followUser(User user) {
+		followedUsers.add(user);
+		user.getFollowingUsers().add(this);
+	}
+	
+	public void unfollowUser(User user) {
+		followedUsers.remove(user);
+		user.getFollowingUsers().remove(this);
+	}
+	
+	public boolean isAdmin() {
+		return roles.contains(new Role("ADMIN"));
 	}
 	
 	@Override

@@ -1,6 +1,7 @@
 package ptpmcn.service;
 
 import java.util.Optional;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -17,7 +18,11 @@ import org.springframework.stereotype.Service;
 
 import ptpmcn.dto.UserDto;
 import ptpmcn.dto.UserRegistrationDto;
+import ptpmcn.errorhandling.ForbiddenException;
+import ptpmcn.errorhandling.ResourceNotFoundException;
+import ptpmcn.model.Role;
 import ptpmcn.model.User;
+import ptpmcn.repository.RoleRepository;
 import ptpmcn.repository.UserRepository;
 
 @Service
@@ -30,6 +35,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private RoleRepository roleRepository;
+
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Optional<User> user = userRepository.findOneByUsername(username);
@@ -41,6 +49,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User save(UserRegistrationDto userDto) {
 		User user = modelMapper.map(userDto, User.class);
+		user.addRole(roleRepository.findOneByName("MEMBER").get());
 		return userRepository.save(user);
 	}
 
@@ -54,18 +63,41 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Page<UserDto> findPaginated(int page, int size, Direction direction, String feild) {
 		if (feild.equals("vote")) {
-			return userRepository.findAndSortByVote(PageRequest.of(page, size, JpaSort.unsafe(direction, "sum(a.vote)")))
-								.map(u -> modelMapper.map(u, UserDto.class));
-					
+			return userRepository
+					.findAndSortByVote(PageRequest.of(page, size, JpaSort.unsafe(direction, "sum(a.vote)")))
+					.map(u -> modelMapper.map(u, UserDto.class));
+
 		}
 
 		if (feild.equals("follow")) {
-				return userRepository.findAndSortByFollower(PageRequest.of(page, size, JpaSort.unsafe(direction, "followingUsers.size")))
-								.map(u -> modelMapper.map(u, UserDto.class));
-					
+			return userRepository
+					.findAndSortByFollower(PageRequest.of(page, size, JpaSort.unsafe(direction, "followingUsers.size")))
+					.map(u -> modelMapper.map(u, UserDto.class));
+
 		}
 		return userRepository.findAll(PageRequest.of(page, size, direction, feild))
-							.map(u -> modelMapper.map(u, UserDto.class));
+				.map(u -> modelMapper.map(u, UserDto.class));
 	}
-	
+
+	@Override
+	public void banUser(Long id) {
+		Optional<User> userOptional = userRepository.findById(id);
+		User user = userOptional.orElseThrow(ResourceNotFoundException::new);
+		Role memberRole = roleRepository.findOneByName("MEMBER").get();
+		if (user.isAdmin() || !user.getRoles().contains(memberRole)) {
+			throw new ForbiddenException();
+		}
+		user.removeRole(memberRole);
+	}
+
+	@Override
+	public void unbanUser(Long id) {
+		Optional<User> userOptional = userRepository.findById(id);
+		User user = userOptional.orElseThrow(ResourceNotFoundException::new);
+		if (user.getRoles().isEmpty()) {
+			user.addRole(roleRepository.findOneByName("MEMBER").get());
+		} else {
+			throw new ForbiddenException();
+		}
+	}
 }

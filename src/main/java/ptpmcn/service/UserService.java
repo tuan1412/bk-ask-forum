@@ -16,6 +16,10 @@ public interface UserService extends UserDetailsService {
 	Optional<UserDto> findOne(Long id);
 
 	Page<UserDto> findPaginated(int page, int size, Direction direction, String feild);
+
+	void banUser(Long id);
+
+	void unbanUser(Long id);
 	
 
 }

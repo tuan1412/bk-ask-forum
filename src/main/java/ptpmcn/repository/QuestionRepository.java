@@ -18,4 +18,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 	
 	@Query("select q from Question q where q.answers.size = :size")
 	Page<Question> findByAnswer(@Param("size") int size, Pageable pageable);
+	
+	@Query("select q from Question q left join q.users u where u.id = :id")
+	Page<Question> findFollowQuestionByUserId(@Param("id") Long id, Pageable pageable);
+	
 }

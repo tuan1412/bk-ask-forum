@@ -35,7 +35,5 @@ public class UserRegistrationDto {
 	@NotBlank(message= "{NotBlank.userRegistration.email}")
 	@Email(message= "{Email.userRegistration.email}")
 	private String email;
-	
-	@NotBlank(message= "{NotBlank.userRegistration.role}")
-	private String role;
+
 }

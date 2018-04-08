@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import ptpmcn.dto.QuestionCreateDto;
 import ptpmcn.dto.QuestionDto;
+import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Category;
 import ptpmcn.model.Question;
 import ptpmcn.repository.CategoryRepository;
@@ -32,12 +33,11 @@ public class QuestionServiceImpl implements QuestionService {
 	private QuestionRepository questionRepository;
 	
 	@Override
-	public Question save(QuestionCreateDto questionDto) {
+	public QuestionDto save(QuestionCreateDto questionDto) {
 		Category category = categoryRepository.findOneByName(questionDto.getCategory()).get();
-		System.out.println(category.getName());
 		Question question = new Question(questionDto.getContent());
 		category.addQuestion(question);
-		return questionRepository.save(question);
+		return modelMapper.map(questionRepository.save(question), QuestionDto.class);
 	}
 
 	@Override
@@ -77,18 +77,16 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 	
 	@Override
-	public boolean update(Long id, QuestionCreateDto questionDto) {
+	public void update(Long id, QuestionCreateDto questionDto) {
 		Optional<Category> category = categoryRepository.findOneByName(questionDto.getCategory());
 		Optional<Question> question = questionRepository.findById(id);
 		if (question.isPresent() && category.isPresent()) {
 			question.get().setContent(questionDto.getContent());
 			category.get().addQuestion(question.get());
 			questionRepository.save(question.get());
-			return true;
+		}else {
+			throw new ResourceNotFoundException();
 		}
-		return false;
-		
-		
 	}
 
 	@Override

@@ -44,4 +44,10 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Argument not vaild", "Not delete resource");
 		return new ResponseEntity<ApiError>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
+	
+	@ExceptionHandler(ForbiddenException.class)
+	public ResponseEntity<ApiError> handleForbiddenException(ForbiddenException ex, WebRequest request){
+		ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, ex.getMessage(), "Action forbiddent");
+		return new ResponseEntity<ApiError>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
 }

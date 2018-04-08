@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import ptpmcn.model.User;
 
@@ -23,5 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	
 	@Query("select u from User u")
 	Page<User> findAndSortByFollower(Pageable pagebale);
-
+	
+	@Query("select u from User u left join u.followingUsers fu where fu.id = :id")
+	Page<User> findFollowUser(@Param("id") Long id, Pageable pageable);
 }

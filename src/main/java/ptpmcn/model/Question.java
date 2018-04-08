@@ -79,5 +79,10 @@ public class Question implements Serializable{
 	
 	@ManyToMany(mappedBy="followQuestions")
 	private Set<User> users = new HashSet<>();
+	
+	public void addAnswer(Answer answer) {
+		answers.add(answer);
+		answer.setQuestion(this);
+	}
 
 }
