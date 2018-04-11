@@ -1,5 +1,6 @@
 package ptpmcn.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -44,6 +45,11 @@ public class CategoryServiceImpl implements CategoryService {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public List<Category> findAll() {
+		return categoryRepository.findAll();
 	}
 
 }

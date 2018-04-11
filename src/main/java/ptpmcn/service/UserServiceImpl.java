@@ -1,7 +1,6 @@
 package ptpmcn.service;
 
 import java.util.Optional;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -47,10 +46,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User save(UserRegistrationDto userDto) {
+	public UserDto save(UserRegistrationDto userDto) {
 		User user = modelMapper.map(userDto, User.class);
 		user.addRole(roleRepository.findOneByName("MEMBER").get());
-		return userRepository.save(user);
+		User saveUser = userRepository.save(user);
+		return modelMapper.map(saveUser, UserDto.class);
 	}
 
 	@Override

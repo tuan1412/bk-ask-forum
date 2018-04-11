@@ -96,7 +96,7 @@ public class PaginatedResultsRetrievedDiscoverabilityListener implements Applica
 
 	    protected void plural(final UriComponentsBuilder uriBuilder, final Class clazz) {
 	        final String resourceName = clazz.getSimpleName().toLowerCase() + "s";
-	        uriBuilder.path("/api/" + resourceName);
+	        uriBuilder.path("/api/" + resourceName + "/paginated");
 	    }
 
 }

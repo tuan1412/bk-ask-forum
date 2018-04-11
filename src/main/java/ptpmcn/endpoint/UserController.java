@@ -10,23 +10,21 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import ptpmcn.dto.PaginatedParam;
 import ptpmcn.dto.UserDto;
 import ptpmcn.dto.UserRegistrationDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.User;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
 import ptpmcn.service.UserService;
-import ptpmcn.util.SortUtil;
 
 @RestController
 @RequestMapping("/api/users")
@@ -39,43 +37,41 @@ public class UserController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public void register(@Valid @RequestBody UserRegistrationDto userDto) {
-		userService.save(userDto);
+	public UserDto register(@Valid @RequestBody UserRegistrationDto userDto) {
+		return userService.save(userDto);
 	}
-	
-	
-	
-	@GetMapping
-	public List<UserDto> getPageUser(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
-			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,
-			UriComponentsBuilder uriBuilder, HttpServletResponse response) {
-		Page<UserDto> resultPage = userService.findPaginated(page, size, SortUtil.getDirection(sort),
-				SortUtil.getFeild(sort));
-		if (page > resultPage.getTotalPages()) {
+
+	@PostMapping("/paginated")
+	public List<UserDto> getPageUser(@RequestBody PaginatedParam params, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+		
+		Page<UserDto> resultPage = userService.findPaginated(params.getPage(), 
+															params.getSize(), 
+															params.getDirection(),
+															params.getFeild());
+		if (params.getPage() > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
-		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<UserDto>(UserDto.class, uriBuilder, response,
-				page, resultPage.getTotalPages(), size));
+		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<User>(User.class, uriBuilder, response,
+				params.getPage(), resultPage.getTotalPages(), params.getSize()));
 		return resultPage.getContent();
 
 	}
 
-	@GetMapping("/{id}")
+	@PostMapping("/{id}")
 	public UserDto getOne(@PathVariable("id") Long id) {
 		return userService.findOne(id).orElseThrow(ResourceNotFoundException::new);
 	}
-	
+
 	@PreAuthorize("hasAuthority('ADMIN')")
-	@GetMapping("{id}/ban")
+	@PostMapping("{id}/ban")
 	public void banUser(@PathVariable("id") Long id) {
 		userService.banUser(id);
 	}
-	
+
 	@PreAuthorize("hasAuthority('ADMIN')")
-	@GetMapping("{id}/unban")
+	@PostMapping("{id}/unban")
 	public void unbanUser(@PathVariable("id") Long id) {
 		userService.unbanUser(id);
 	}
-	
+
 }

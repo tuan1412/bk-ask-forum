@@ -11,6 +11,10 @@ import ptpmcn.validator.ExistedCategory;
 @Setter
 @NoArgsConstructor
 public class QuestionCreateDto {
+	
+	@NotBlank(message="{NotBlank.questionCreateDto.title}")
+	private String title;
+	
 	@NotBlank(message="{NotBlank.questionCreateDto.content}")
 	private String content;
 	

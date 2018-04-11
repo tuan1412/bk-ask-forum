@@ -49,6 +49,9 @@ public class Question implements Serializable{
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@NotBlank	
+	private String title;
+	
 	@NotBlank
 	@NonNull
 	private String content;

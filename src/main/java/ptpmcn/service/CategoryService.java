@@ -1,5 +1,7 @@
 package ptpmcn.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort.Direction;
 
@@ -14,5 +16,7 @@ public interface CategoryService {
 	void delete(Long id);
 
 	boolean update(Long id, Category category);
+
+	List<Category> findAll();
 
 }

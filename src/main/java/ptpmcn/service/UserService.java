@@ -8,10 +8,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import ptpmcn.dto.UserDto;
 import ptpmcn.dto.UserRegistrationDto;
-import ptpmcn.model.User;
 
 public interface UserService extends UserDetailsService {
-	User save(UserRegistrationDto userDto);
+	UserDto save(UserRegistrationDto userDto);
 
 	Optional<UserDto> findOne(Long id);
 

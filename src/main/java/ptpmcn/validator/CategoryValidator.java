@@ -13,8 +13,8 @@ public class CategoryValidator implements ConstraintValidator<ExistedCategory, S
 	private CategoryRepository categoryRepository;
 
 	@Override
-	public boolean isValid(String category, ConstraintValidatorContext context) {
-		return categoryRepository.findOneByName(category).isPresent();
+	public boolean isValid(String name, ConstraintValidatorContext context) {
+		return name != null || !categoryRepository.findOneByName(name).isPresent() ;
 	}
 
 }

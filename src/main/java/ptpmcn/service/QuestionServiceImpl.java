@@ -35,7 +35,7 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public QuestionDto save(QuestionCreateDto questionDto) {
 		Category category = categoryRepository.findOneByName(questionDto.getCategory()).get();
-		Question question = new Question(questionDto.getContent());
+		Question question = modelMapper.map(questionDto, Question.class);
 		category.addQuestion(question);
 		return modelMapper.map(questionRepository.save(question), QuestionDto.class);
 	}
@@ -82,6 +82,7 @@ public class QuestionServiceImpl implements QuestionService {
 		Optional<Question> question = questionRepository.findById(id);
 		if (question.isPresent() && category.isPresent()) {
 			question.get().setContent(questionDto.getContent());
+			question.get().setTitle(questionDto.getTitle());
 			category.get().addQuestion(question.get());
 			questionRepository.save(question.get());
 		}else {

@@ -8,26 +8,24 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import ptpmcn.dto.AnswerCreateDto;
 import ptpmcn.dto.AnswerDto;
+import ptpmcn.dto.PaginatedParam;
 import ptpmcn.errorhandling.ResourceNotFoundException;
+import ptpmcn.model.Answer;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
 import ptpmcn.service.AnswerService;
-import ptpmcn.util.SortUtil;
 
 @RestController
 @RequestMapping("/api/answers")
@@ -39,33 +37,37 @@ public class AnswerController {
 	@Autowired
 	private AnswerService answerService;
 	
-	@GetMapping("user/{id}")
-	public List<AnswerDto> getPageAnswers(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
-			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,
-			@PathVariable("id") Long id,
-			UriComponentsBuilder uriBuilder, HttpServletResponse response) {
-		Page<AnswerDto> resultPage = answerService.findPaginatedByUserId(id, page, size, SortUtil.getDirection(sort),
-				SortUtil.getFeild(sort));
+	@PostMapping("user/{id}/paginated")
+	public List<AnswerDto> getPageAnswers(@RequestBody PaginatedParam params, @PathVariable("id") Long id,
+										UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+		
+		int page = params.getPage();
+		int size = params.getSize();
+		Direction direction = params.getDirection();
+		String feild = params.getFeild();
+		
+		Page<AnswerDto> resultPage = answerService.findPaginatedByUserId(id, page, size, direction, feild);
 		if (page > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
-		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<AnswerDto>(AnswerDto.class, uriBuilder, response,
+		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<Answer>(Answer.class, uriBuilder, response,
 				page, resultPage.getTotalPages(), size));
 		return resultPage.getContent();
 
 	}
 	
-	@GetMapping("question/{id}")
-	public List<AnswerDto> getPageAnswerDtoByQuestion(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-														@RequestParam(name = "size", required = false, defaultValue = "1") int size,
-														@PathVariable("id") Long id,
-														UriComponentsBuilder uriBuilder, HttpServletResponse response){
+	@PostMapping("question/{id}/paginated")
+	public List<AnswerDto> getPageAnswerDtoByQuestion(@RequestBody PaginatedParam params, @PathVariable("id") Long id,
+													UriComponentsBuilder uriBuilder, HttpServletResponse response){
+
+		int page = params.getPage();
+		int size = params.getSize();
+				
 		Page<AnswerDto> resultPage = answerService.findPaginatedByQuestionId(id, page, size);
 		if (page > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
-		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<AnswerDto>(AnswerDto.class, uriBuilder, response,
+		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<Answer>(Answer.class, uriBuilder, response,
 				page, resultPage.getTotalPages(), size));
 		return resultPage.getContent();
 	}
@@ -79,19 +81,19 @@ public class AnswerController {
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
-	@PutMapping("{id}")
+	@PostMapping("{id}/update")
 	public void updateAnswer(@PathVariable("id") Long id, @Valid@RequestBody AnswerCreateDto answerDto) {
 		answerService.updateAnswer(id, answerDto);
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
-	@DeleteMapping("{id}")
+	@PostMapping("{id}/delete")
 	public void deleteAnswer(@PathVariable("id") Long id) {
 		answerService.delete(id);
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
-	@GetMapping("{id}/vote")
+	@PostMapping("{id}/vote")
 	public void voteAnswer(@PathVariable("id") Long id) {
 		answerService.upVote(id);
 	}	

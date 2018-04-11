@@ -9,27 +9,26 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import ptpmcn.dto.AnswerPaginatedParam;
+import ptpmcn.dto.CategoryPaginatedParam;
+import ptpmcn.dto.PaginatedParam;
 import ptpmcn.dto.QuestionCreateDto;
 import ptpmcn.dto.QuestionDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Question;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
 import ptpmcn.service.QuestionService;
-import ptpmcn.util.SortUtil;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -48,65 +47,74 @@ public class QuestionController {
 		return questionService.save(questionDto);
 	}
 
-	@GetMapping("user/{id}")
-	public List<QuestionDto> getPageQuestionByUserId(
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
-			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,
-			@PathVariable("id") Long id, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
-		Page<QuestionDto> resultPage = questionService.findPaginatedByUserId(id, page, size,
-				SortUtil.getDirection(sort), SortUtil.getFeild(sort));
+	@PostMapping("user/{id}/paginated")
+	public List<QuestionDto> getPageQuestionByUserId(@RequestBody PaginatedParam params,
+													@PathVariable("id") Long id, 
+													UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+		
+		int page = params.getPage();
+		int size = params.getSize();
+		Direction direction = params.getDirection();
+		String feild = params.getFeild();
+		Page<QuestionDto> resultPage = questionService.findPaginatedByUserId(id, page, size, direction, feild);
 		if (page > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
-		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<QuestionDto>(QuestionDto.class, uriBuilder,
+		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<Question>(Question.class, uriBuilder,
 				response, page, resultPage.getTotalPages(), size));
 		return resultPage.getContent();
 
 	}
 
-	@GetMapping("category")
-	public List<QuestionDto> getPageQuestionByCategory(
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
-			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,
-			@RequestParam("name") String name, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
-		Page<QuestionDto> resultPage = questionService.findPaginatedByCategory(name, page, size,
-				SortUtil.getDirection(sort), SortUtil.getFeild(sort));
+	@PostMapping("category/paginated")
+	public List<QuestionDto> getPageQuestionByCategory(@RequestBody CategoryPaginatedParam params, 
+													UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+		
+		String name = params.getName();
+		int page = params.getPage();
+		int size = params.getSize();
+		Direction direction = params.getDirection();
+		String feild = params.getFeild();
+		
+		Page<QuestionDto> resultPage = questionService.findPaginatedByCategory(name, page, size, direction, feild);
 		if (page > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
-		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<QuestionDto>(QuestionDto.class, uriBuilder,
+		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<Question>(Question.class, uriBuilder,
 				response, page, resultPage.getTotalPages(), size));
 		return resultPage.getContent();
 
 	}
 
-	@GetMapping("answer")
-	public List<QuestionDto> getPageQuestionByAnswer(
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
-			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,
-			@RequestParam(name = "quatity", required = true, defaultValue = "0") int sizeOfAnswers,
+	@PostMapping("answer/paginated")
+	public List<QuestionDto> getPageQuestionByAnswer(@RequestBody AnswerPaginatedParam params, 
 			UriComponentsBuilder uriBuilder, HttpServletResponse response) {
-		Page<QuestionDto> resultPage = questionService.findPaginatedByAnswers(sizeOfAnswers, page, size,
-				SortUtil.getDirection(sort), SortUtil.getFeild(sort));
+		
+		int quatity = params.getQuatity();
+		int page = params.getPage();
+		int size = params.getSize();
+		Direction direction = params.getDirection();
+		String feild = params.getFeild();
+		
+		Page<QuestionDto> resultPage = questionService.findPaginatedByAnswers(quatity, page, size, direction, feild);
 		if (page > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
-		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<QuestionDto>(QuestionDto.class, uriBuilder,
+		eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<Question>(Question.class, uriBuilder,
 				response, page, resultPage.getTotalPages(), size));
 		return resultPage.getContent();
 	}
 
-	@GetMapping
-	public List<QuestionDto> getPageQuestion(
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-			@RequestParam(name = "size", required = false, defaultValue = "1") int size,
-			@RequestParam(name = "sort", required = false, defaultValue = "+id") String sort,
-			UriComponentsBuilder uriBuilder, HttpServletResponse response) {
-		Page<QuestionDto> resultPage = questionService.findPaginated(page, size, SortUtil.getDirection(sort),
-				SortUtil.getFeild(sort));
+	@PostMapping("/paginated")
+	public List<QuestionDto> getPageQuestion(@RequestBody PaginatedParam params, 
+											UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+		
+		int page = params.getPage();
+		int size = params.getSize();
+		Direction direction = params.getDirection();
+		String feild = params.getFeild();
+		
+		Page<QuestionDto> resultPage = questionService.findPaginated(page, size, direction, feild);
 		if (page > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
@@ -117,13 +125,13 @@ public class QuestionController {
 	}
 
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
-	@DeleteMapping("{id}")
+	@PostMapping("{id}/delete")
 	public void delete(@PathVariable("id") Long id) {
 		questionService.deleteById(id);
 	}
 
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
-	@GetMapping("{id}/vote")
+	@PostMapping("{id}/vote")
 	public void voteQuestion(@PathVariable("id") Long id) {
 		Optional<Question> question = questionService.findOneById(id);
 		question.ifPresent(q -> {
@@ -134,7 +142,7 @@ public class QuestionController {
 	}
 
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
-	@PutMapping("{id}")
+	@PostMapping("{id}/update")
 	public void updateQuestion(@Valid @RequestBody QuestionCreateDto questionDto, @PathVariable("id") Long id) {
 		questionService.update(id, questionDto);
 	}
