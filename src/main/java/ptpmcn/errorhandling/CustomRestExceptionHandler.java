@@ -50,4 +50,10 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 		ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, ex.getMessage(), "Action forbiddent");
 		return new ResponseEntity<ApiError>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
+	
+	@ExceptionHandler(FileUploadException.class)
+	public ResponseEntity<ApiError> handleFileUpload(EmptyResultDataAccessException ex, WebRequest request){
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), "File upload error");
+		return new ResponseEntity<ApiError>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
 }

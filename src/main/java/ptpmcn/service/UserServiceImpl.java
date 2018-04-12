@@ -100,4 +100,15 @@ public class UserServiceImpl implements UserService {
 			throw new ForbiddenException();
 		}
 	}
+
+	@Override
+	public Optional<User> findById(Long id) {
+		return userRepository.findById(id);
+	}
+
+	@Override
+	public UserDto update(User user) {
+		user = userRepository.save(user);
+		return modelMapper.map(user, UserDto.class);
+	}
 }

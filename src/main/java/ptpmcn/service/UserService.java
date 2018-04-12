@@ -8,11 +8,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import ptpmcn.dto.UserDto;
 import ptpmcn.dto.UserRegistrationDto;
+import ptpmcn.model.User;
 
 public interface UserService extends UserDetailsService {
 	UserDto save(UserRegistrationDto userDto);
 
 	Optional<UserDto> findOne(Long id);
+	
+	Optional<User> findById(Long id);
+	
+	UserDto update(User user);
 
 	Page<UserDto> findPaginated(int page, int size, Direction direction, String feild);
 
