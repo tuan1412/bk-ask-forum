@@ -43,7 +43,7 @@ public class BeanConfig {
 		});
 
 		Converter<String, String> convertUrl = ctx -> ServletUriComponentsBuilder.fromCurrentContextPath()
-				.path("/uploads/" + ctx.getSource()).build().encode().toUriString();
+				.path("/upload/" + ctx.getSource()).build().encode().toUriString();
 
 		modelMapper.addMappings(new PropertyMap<User, UserDto>() {
 			@Override

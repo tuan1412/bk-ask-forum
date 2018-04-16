@@ -7,10 +7,9 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
-
-import com.jayway.jsonpath.Option;
 
 import ptpmcn.dto.AnswerCreateDto;
 import ptpmcn.dto.AnswerDto;
@@ -23,13 +22,13 @@ import ptpmcn.repository.QuestionRepository;
 @Service
 @Transactional
 public class AnswerServiceImpl implements AnswerService {
-	
+
 	@Autowired
 	private ModelMapper modelMapper;
-	
+
 	@Autowired
 	private QuestionRepository questionRepository;
-	
+
 	@Autowired
 	private AnswerRepository answerRepository;
 
@@ -64,7 +63,7 @@ public class AnswerServiceImpl implements AnswerService {
 		Optional<Answer> answer = answerRepository.findById(id);
 		answer.ifPresent(a -> {
 			a.setContent(answerDto.getContent());
-			answerRepository.save(a);		
+			answerRepository.save(a);
 		});
 		answer.orElseThrow(ResourceNotFoundException::new);
 	}
@@ -78,7 +77,5 @@ public class AnswerServiceImpl implements AnswerService {
 		});
 		answer.orElseThrow(ResourceNotFoundException::new);
 	}
-
-
 
 }
