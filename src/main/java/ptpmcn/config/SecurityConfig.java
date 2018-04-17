@@ -12,6 +12,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import ptpmcn.auth.AuthenticationFilter;
 
@@ -19,14 +23,14 @@ import ptpmcn.auth.AuthenticationFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 
-public class SecurityConfig extends WebSecurityConfigurerAdapter{
-	
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
 	@Autowired
 	private UserDetailsService userService;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private AuthenticationFilter authenticationFilter;
 
@@ -43,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().cors().disable();
+		http.csrf().disable();
 		http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 	}
 
@@ -51,6 +55,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	protected UserDetailsService userDetailsService() {
 		return userService;
 	}
-	
-	
+
+	@Bean
+	CorsFilter corsConfigurationSource() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.addAllowedOrigin("*");
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("OPTIONS");
+		config.addAllowedMethod("GET");
+		config.addAllowedMethod("POST");
+		config.addAllowedMethod("PUT");
+		config.addAllowedMethod("DELETE");
+		source.registerCorsConfiguration("/**", config);
+		return new CorsFilter(source);
+	}
+
 }
