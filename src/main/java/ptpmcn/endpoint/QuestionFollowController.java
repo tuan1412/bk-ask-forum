@@ -31,6 +31,7 @@ public class QuestionFollowController {
 	@Autowired
 	private QuestionFollowService questionFollowService;
 
+	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/questions/follow/paginated")
 	public List<QuestionDto> getPageQuestionFollow(@RequestBody PaginatedParam params,
 													UriComponentsBuilder uriBuilder, HttpServletResponse response) {
@@ -51,13 +52,15 @@ public class QuestionFollowController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/questions/{id}/follow")
-	public void followQuestion(@PathVariable("id") Long id) {
+	public String followQuestion(@PathVariable("id") Long id) {
 		questionFollowService.followQuestion(id);
+		return "Follow success";
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/questions/{id}/unfollow")
-	public void unfollowQuestion(@PathVariable("id") Long id) {
+	public String unfollowQuestion(@PathVariable("id") Long id) {
 		questionFollowService.unfollowQuestion(id);
+		return "UnFollow success";
 	}
 }

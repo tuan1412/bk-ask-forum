@@ -59,23 +59,38 @@ public class AnswerServiceImpl implements AnswerService {
 	}
 
 	@Override
-	public void updateAnswer(Long id, AnswerCreateDto answerDto) {
+	public AnswerDto updateAnswer(Long id, AnswerCreateDto answerDto) {
 		Optional<Answer> answer = answerRepository.findById(id);
-		answer.ifPresent(a -> {
-			a.setContent(answerDto.getContent());
-			answerRepository.save(a);
-		});
 		answer.orElseThrow(ResourceNotFoundException::new);
+		if (answer.isPresent()) {
+			answer.get().setContent(answerDto.getContent());
+		}
+		return modelMapper.map(answerRepository.save(answer.get()), AnswerDto.class);		
 	}
 
 	@Override
-	public void upVote(Long id) {
+	public AnswerDto upVote(Long id) {
 		Optional<Answer> answer = answerRepository.findById(id);
-		answer.ifPresent(a -> {
-			a.setVote(a.getVote() + 1);
-			answerRepository.save(a);
-		});
 		answer.orElseThrow(ResourceNotFoundException::new);
+		if (answer.isPresent()) {
+			answer.get().setVote(answer.get().getVote() + 1);
+		}
+		return modelMapper.map(answerRepository.save(answer.get()), AnswerDto.class);		
+	}
+
+	@Override
+	public AnswerDto findOne(Long id) {
+		return modelMapper.map(answerRepository.findById(id).get(), AnswerDto.class);
+	}
+
+	@Override
+	public AnswerDto downVote(Long id) {
+		Optional<Answer> answer = answerRepository.findById(id);
+		answer.orElseThrow(ResourceNotFoundException::new);
+		if (answer.isPresent()) {
+			answer.get().setVote(answer.get().getVote() - 1);
+		}
+		return modelMapper.map(answerRepository.save(answer.get()), AnswerDto.class);
 	}
 
 }

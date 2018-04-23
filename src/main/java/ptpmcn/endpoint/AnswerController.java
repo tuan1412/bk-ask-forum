@@ -82,8 +82,8 @@ public class AnswerController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/update")
-	public void updateAnswer(@PathVariable("id") Long id, @Valid@RequestBody AnswerCreateDto answerDto) {
-		answerService.updateAnswer(id, answerDto);
+	public AnswerDto updateAnswer(@PathVariable("id") Long id, @Valid@RequestBody AnswerCreateDto answerDto) {
+		return answerService.updateAnswer(id, answerDto);
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
@@ -94,7 +94,18 @@ public class AnswerController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/vote")
-	public void voteAnswer(@PathVariable("id") Long id) {
-		answerService.upVote(id);
+	public AnswerDto voteAnswer(@PathVariable("id") Long id) {
+		return answerService.upVote(id);
 	}	
+	
+	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
+	@PostMapping("{id}/unvote")
+	public AnswerDto unvoteAnswer(@PathVariable("id") Long id) {
+		return answerService.downVote(id);
+	}	
+	
+	@PostMapping("{id}")
+	public AnswerDto getOne(@PathVariable("id") Long id) {
+		return answerService.findOne(id);
+	}
 }

@@ -21,5 +21,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 	
 	@Query("select q from Question q left join q.users u where u.id = :id")
 	Page<Question> findFollowQuestionByUserId(@Param("id") Long id, Pageable pageable);
+
+	@Query("select q from Question q where q.title like %:keyword% or q.content like %:keyword% or q.user.username like %:keyword%")
+	Page<Question> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
 	
 }

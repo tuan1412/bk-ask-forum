@@ -77,14 +77,14 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 	
 	@Override
-	public void update(Long id, QuestionCreateDto questionDto) {
+	public QuestionDto update(Long id, QuestionCreateDto questionDto) {
 		Optional<Category> category = categoryRepository.findOneByName(questionDto.getCategory());
 		Optional<Question> question = questionRepository.findById(id);
 		if (question.isPresent() && category.isPresent()) {
 			question.get().setContent(questionDto.getContent());
 			question.get().setTitle(questionDto.getTitle());
 			category.get().addQuestion(question.get());
-			questionRepository.save(question.get());
+			return modelMapper.map(questionRepository.save(question.get()), QuestionDto.class);
 		}else {
 			throw new ResourceNotFoundException();
 		}
@@ -93,5 +93,28 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public Question update(Question question) {
 		return questionRepository.save(question);
+	}
+
+	@Override
+	public QuestionDto findOne(Long id) {
+		Optional<Question> question = questionRepository.findById(id);
+		if (question.isPresent()) {
+			return modelMapper.map(questionRepository.findById(id).get(), QuestionDto.class);
+		}else {
+			throw new ResourceNotFoundException();
+		}
+		
+	}
+
+	@Override
+	public QuestionDto map(Question question) {
+		return modelMapper.map(question, QuestionDto.class);
+	}
+
+	@Override
+	public Page<QuestionDto> findPaginatedByKeyword(String keyword, int page, int size, Direction direction,
+			String feild) {
+		return questionRepository.findByKeyword(keyword, PageRequest.of(page, size, direction, feild))
+				.map(u -> modelMapper.map(u, QuestionDto.class));
 	}
 }

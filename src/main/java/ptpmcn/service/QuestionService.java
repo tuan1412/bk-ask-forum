@@ -17,7 +17,8 @@ public interface QuestionService {
 	
 	Optional<Question> findOneById(Long id);
 	
-
+	QuestionDto findOne(Long id);
+	
 	Page<QuestionDto> findPaginated(int page, int size, Direction direction, String feild);
 
 	Page<QuestionDto> findPaginatedByUserId(Long id, int page, int size, Direction direction, String feild);
@@ -26,8 +27,12 @@ public interface QuestionService {
 
 	Page<QuestionDto> findPaginatedByAnswers(int sizeOfAnswers, int page, int size, Direction direction, String feild);
 
-	void update(Long id, QuestionCreateDto questionDto);
+	QuestionDto update(Long id, QuestionCreateDto questionDto);
 	
 	Question update(Question question);
+	
+	QuestionDto map(Question question);
+
+	Page<QuestionDto> findPaginatedByKeyword(String keyword, int page, int size, Direction direction, String feild);
 
 }

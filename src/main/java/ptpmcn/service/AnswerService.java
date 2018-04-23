@@ -16,7 +16,11 @@ public interface AnswerService {
 
 	void delete(Long id);
 
-	void updateAnswer(Long id, AnswerCreateDto answerDto);
+	AnswerDto updateAnswer(Long id, AnswerCreateDto answerDto);
 
-	void upVote(Long id);
+	AnswerDto upVote(Long id);
+
+	AnswerDto findOne(Long id);
+
+	AnswerDto downVote(Long id);
 }

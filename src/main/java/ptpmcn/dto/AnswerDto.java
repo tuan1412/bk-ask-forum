@@ -19,4 +19,5 @@ public class AnswerDto implements Serializable{
 	private LocalDateTime lastModified;
 	private Long userId;
 	private Long questionId;
+	private int vote;
 }

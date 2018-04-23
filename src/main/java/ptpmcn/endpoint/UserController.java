@@ -82,14 +82,16 @@ public class UserController {
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("{id}/ban")
-	public void banUser(@PathVariable("id") Long id) {
+	public String banUser(@PathVariable("id") Long id) {
 		userService.banUser(id);
+		return "Ban user success";
 	}
 
 	@PreAuthorize("hasAuthority('ADMIN')")
-	@PostMapping("/unban")
-	public void unbanUser(@PathVariable("id") Long id) {
+	@PostMapping("{id}/unban")
+	public String unbanUser(@PathVariable("id") Long id) {
 		userService.unbanUser(id);
+		return "Unban user success";
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
@@ -119,6 +121,4 @@ public class UserController {
 		user.setPassword(passwordEncode);
 		return userService.update(user);
 	}
-
-
 }
