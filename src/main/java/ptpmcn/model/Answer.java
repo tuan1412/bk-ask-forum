@@ -2,6 +2,8 @@ package ptpmcn.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -42,7 +45,7 @@ public class Answer implements Serializable {
 	@NotBlank
 	private String content;
 	
-	private int vote;
+//	private int vote;
 	
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
@@ -55,6 +58,9 @@ public class Answer implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@CreatedBy
 	private User user;
+	
+	@ManyToMany(mappedBy="voteAnswers")
+	private Set<User> voteUsers = new HashSet<>();
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Question question;

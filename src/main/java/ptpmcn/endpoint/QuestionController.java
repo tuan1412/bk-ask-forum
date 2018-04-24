@@ -139,26 +139,13 @@ public class QuestionController {
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/vote")
 	public QuestionDto voteQuestion(@PathVariable("id") Long id) {
-		Optional<Question> question = questionService.findOneById(id);
-		question.ifPresent(q -> {
-			q.setVote(q.getVote() + 1);
-			questionService.update(q);
-		});
-		question.orElseThrow(ResourceNotFoundException::new);
-		return questionService.map(question.get());
-
+		return questionService.voteQuestion(id);
 	}
 
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/unvote")
 	public QuestionDto unvoteQuestion(@PathVariable("id") Long id) {
-		Optional<Question> question = questionService.findOneById(id);
-		question.ifPresent(q -> {
-			q.setVote(q.getVote() - 1);
-			questionService.update(q);
-		});
-		question.orElseThrow(ResourceNotFoundException::new);
-		return questionService.map(question.get());
+		return questionService.unvoteQuestion(id);
 
 	}
 
@@ -189,6 +176,15 @@ public class QuestionController {
 				page, resultPage.getTotalPages(), size));
 		return resultPage.getContent();
 		
+	}
+	
+	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
+	@PostMapping("{id}/check")
+	public String checkVote(@PathVariable("id") Long id) {
+		if (questionService.isVoted(id)) {
+			return "Voted";
+		}
+		throw new ResourceNotFoundException();
 	}
 
 }

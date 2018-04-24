@@ -83,17 +83,31 @@ public class User implements UserDetails {
 				inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 	
+	@JsonIgnore
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JoinTable(name = "user_question_vote",
+				joinColumns = @JoinColumn(name = "user_id"),
+				inverseJoinColumns = @JoinColumn(name = "question_id"))
+	private Set<Question> voteQuestions = new HashSet<>();
+	
+	@JsonIgnore
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JoinTable(name = "user_answer_vote",
+				joinColumns = @JoinColumn(name = "user_id"),
+				inverseJoinColumns = @JoinColumn(name = "answer_id"))
+	private Set<Answer> voteAnswers = new HashSet<>();
+	
 	@Transient
 	private int followers;
-	@Transient
-	private int vote;
+//	@Transient
+//	private int vote;
 	@PostLoad
 	private void postLoad() {
-		int answerVote = answers.stream()
-								.map(Answer::getVote)
-								.reduce(Integer::sum)
-								.orElse(0);
-		vote = answerVote;
+//		int answerVote = answers.stream()
+//								.map(Answer::getVote)
+//								.reduce(Integer::sum)
+//								.orElse(0);
+//		vote = answerVote;
 		
 		followers = followingUsers.size();
 		
@@ -130,6 +144,26 @@ public class User implements UserDetails {
 	@JsonIgnore
 	@ManyToMany(mappedBy="followedUsers")
 	private Set<User> followingUsers = new HashSet<>();
+	
+	public void voteAnswer(Answer answer) {
+		voteAnswers.add(answer);
+		answer.getVoteUsers().add(this);
+	}
+	
+	public void unvoteAnswer(Answer answer) {
+		voteAnswers.remove(answer);
+		answer.getVoteUsers().remove(this);
+	}
+	
+	public void voteQuestion(Question question) {
+		voteQuestions.add(question);
+		question.getVoteUsers().add(this);
+	}
+	
+	public void unvoteQuestion(Question question) {
+		voteQuestions.remove(question);
+		question.getVoteUsers().remove(this);
+	}
 	
 	public void addRole(Role role) {
 		roles.add(role);

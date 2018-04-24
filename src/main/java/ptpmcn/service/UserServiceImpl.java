@@ -62,13 +62,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Page<UserDto> findPaginated(int page, int size, Direction direction, String feild) {
-		if (feild.equals("vote")) {
-			return userRepository
-					.findAndSortByVote(PageRequest.of(page, size, JpaSort.unsafe(direction, "sum(a.vote)")))
-					.map(u -> modelMapper.map(u, UserDto.class));
-
-		}
-
 		if (feild.equals("follow")) {
 			return userRepository
 					.findAndSortByFollower(PageRequest.of(page, size, JpaSort.unsafe(direction, "followingUsers.size")))

@@ -13,8 +13,8 @@ import org.springframework.data.repository.query.Param;
 import ptpmcn.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-	
-    Optional<User> findOneByUsername(String username);
+
+	Optional<User> findOneByUsername(String username);
     
    	@EntityGraph(value = "User.roles", type = EntityGraphType.LOAD)
 	User findOneById(Long id);
@@ -27,4 +27,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	
 	@Query("select u from User u left join u.followingUsers fu where fu.id = :id")
 	Page<User> findFollowUser(@Param("id") Long id, Pageable pageable);
+	
+	@Query("select (select count(a.id) from Answer a join a.voteUsers where a.user.id =:id) "
+			+"+ (select count(q.id) from Question q join q.voteUsers where q.user.id =:id) from User u")
+	Long countVote(@Param("id") Long id); 
 }

@@ -23,4 +23,6 @@ public interface AnswerService {
 	AnswerDto findOne(Long id);
 
 	AnswerDto downVote(Long id);
+
+	boolean isVoted(Long id);
 }

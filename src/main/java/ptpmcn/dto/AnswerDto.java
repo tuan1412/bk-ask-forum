@@ -14,10 +14,10 @@ public class AnswerDto implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
-	private Long id;
+	private long id;
 	private String content;
 	private LocalDateTime lastModified;
-	private Long userId;
-	private Long questionId;
-	private int vote;
+	private long userId;
+	private long questionId;
+	private long vote;
 }

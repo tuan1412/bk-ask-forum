@@ -16,15 +16,23 @@ import ptpmcn.dto.AnswerDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Answer;
 import ptpmcn.model.Question;
+import ptpmcn.model.User;
 import ptpmcn.repository.AnswerRepository;
 import ptpmcn.repository.QuestionRepository;
+import ptpmcn.repository.UserRepository;
 
 @Service
 @Transactional
 public class AnswerServiceImpl implements AnswerService {
+	
+	@Autowired
+	private SecurityContextService securityContextService;
 
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private QuestionRepository questionRepository;
@@ -34,8 +42,8 @@ public class AnswerServiceImpl implements AnswerService {
 
 	@Override
 	public Page<AnswerDto> findPaginatedByQuestionId(Long id, int page, int size) {
-		return answerRepository.findByQuestion(id, PageRequest.of(page, size, Direction.DESC, "vote", "lastModified"))
-				.map(a -> modelMapper.map(a, AnswerDto.class));
+		return answerRepository.findByQuestionAndSort(id, PageRequest.of(page, size))
+				.map(a -> modelMapper.map(a[0], AnswerDto.class));
 	}
 
 	@Override
@@ -65,15 +73,17 @@ public class AnswerServiceImpl implements AnswerService {
 		if (answer.isPresent()) {
 			answer.get().setContent(answerDto.getContent());
 		}
-		return modelMapper.map(answerRepository.save(answer.get()), AnswerDto.class);		
+		return modelMapper.map(answer.get(), AnswerDto.class);		
 	}
 
 	@Override
 	public AnswerDto upVote(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		User user = userRepository.findOneById(currentUser.get().getId());
 		Optional<Answer> answer = answerRepository.findById(id);
 		answer.orElseThrow(ResourceNotFoundException::new);
 		if (answer.isPresent()) {
-			answer.get().setVote(answer.get().getVote() + 1);
+			user.voteAnswer(answer.get());
 		}
 		return modelMapper.map(answerRepository.save(answer.get()), AnswerDto.class);		
 	}
@@ -85,12 +95,22 @@ public class AnswerServiceImpl implements AnswerService {
 
 	@Override
 	public AnswerDto downVote(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		User user = userRepository.findOneById(currentUser.get().getId());
 		Optional<Answer> answer = answerRepository.findById(id);
 		answer.orElseThrow(ResourceNotFoundException::new);
 		if (answer.isPresent()) {
-			answer.get().setVote(answer.get().getVote() - 1);
+			user.unvoteAnswer(answer.get());
 		}
-		return modelMapper.map(answerRepository.save(answer.get()), AnswerDto.class);
+		return modelMapper.map(answer.get(), AnswerDto.class);
+	}
+
+	@Override
+	public boolean isVoted(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		Long uid = currentUser.get().getId();
+		Optional<Answer> answer = answerRepository.findVoted(id, uid);
+		return answer.isPresent();
 	}
 
 }

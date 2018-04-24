@@ -19,7 +19,7 @@ public class UserDto implements Serializable {
 	private String fullname;
 	private LocalDateTime createAt;
 	private String email;
-	private int vote;
+	private long vote;
 	private int followers;
 	private boolean banned;
 	

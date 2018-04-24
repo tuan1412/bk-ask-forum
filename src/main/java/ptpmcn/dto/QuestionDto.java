@@ -16,6 +16,6 @@ public class QuestionDto implements Serializable{
 	private String title;
 	private String content;
 	private String categoryName;
-	private Long vote;
-	private Long userId;
+	private long vote;
+	private long userId;
 }

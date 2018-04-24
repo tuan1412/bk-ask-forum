@@ -35,4 +35,10 @@ public interface QuestionService {
 
 	Page<QuestionDto> findPaginatedByKeyword(String keyword, int page, int size, Direction direction, String feild);
 
+	QuestionDto voteQuestion(Long id);
+
+	QuestionDto unvoteQuestion(Long id);
+
+	boolean isVoted(Long id);
+
 }

@@ -56,9 +56,6 @@ public class Question implements Serializable{
 	@NonNull
 	private String content;
 	
-	private int vote = 0;
-	
-
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@CreatedBy
@@ -82,6 +79,10 @@ public class Question implements Serializable{
 	
 	@ManyToMany(mappedBy="followQuestions")
 	private Set<User> users = new HashSet<>();
+	
+	@ManyToMany(mappedBy="voteQuestions")
+	private Set<User> voteUsers = new HashSet<>();
+	
 	
 	public void addAnswer(Answer answer) {
 		answers.add(answer);

@@ -16,12 +16,20 @@ import ptpmcn.dto.QuestionDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Category;
 import ptpmcn.model.Question;
+import ptpmcn.model.User;
 import ptpmcn.repository.CategoryRepository;
 import ptpmcn.repository.QuestionRepository;
+import ptpmcn.repository.UserRepository;
 
 @Service
 @Transactional
 public class QuestionServiceImpl implements QuestionService {
+	
+	@Autowired
+	private SecurityContextService securityContextService;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	@Autowired
 	private ModelMapper modelMapper;
@@ -116,5 +124,37 @@ public class QuestionServiceImpl implements QuestionService {
 			String feild) {
 		return questionRepository.findByKeyword(keyword, PageRequest.of(page, size, direction, feild))
 				.map(u -> modelMapper.map(u, QuestionDto.class));
+	}
+
+	@Override
+	public QuestionDto voteQuestion(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		User user = userRepository.findOneById(currentUser.get().getId());
+		Optional<Question> question = questionRepository.findById(id);
+		question.orElseThrow(ResourceNotFoundException::new);
+		if (question.isPresent()) {
+			user.voteQuestion(question.get());
+		}
+		return modelMapper.map(questionRepository.save(question.get()), QuestionDto.class);
+	}
+
+	@Override
+	public QuestionDto unvoteQuestion(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		User user = userRepository.findOneById(currentUser.get().getId());
+		Optional<Question> question = questionRepository.findById(id);
+		question.orElseThrow(ResourceNotFoundException::new);
+		if (question.isPresent()) {
+			user.unvoteQuestion(question.get());
+		}
+		return modelMapper.map(questionRepository.save(question.get()), QuestionDto.class);
+	}
+
+	@Override
+	public boolean isVoted(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		Long uid = currentUser.get().getId();
+		Optional<Question> question = questionRepository.findVoted(id, uid);
+		return question.isPresent();
 	}
 }

@@ -108,4 +108,13 @@ public class AnswerController {
 	public AnswerDto getOne(@PathVariable("id") Long id) {
 		return answerService.findOne(id);
 	}
+	
+	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
+	@PostMapping("{id}/check")
+	public String checkVote(@PathVariable("id") Long id) {
+		if (answerService.isVoted(id)) {
+			return "Voted";
+		}
+		throw new ResourceNotFoundException();
+	}
 }
