@@ -1,5 +1,10 @@
 package ptpmcn.config;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.modelmapper.Converter;
@@ -75,11 +80,14 @@ public class BeanConfig {
 		
 		Converter<Long, Long> countVote = ctx -> answerRepository.countVote(ctx.getSource());
 		
+		Converter<Set<User>, List<Long>> listVoteUsers = ctx -> ctx.getSource().stream().map(u->u.getId()).collect(Collectors.toList());
+		
 		modelMapper.addMappings(new PropertyMap<Answer, AnswerDto>() {
 			@Override
 			protected void configure() {
 				using(countVote).map(source.getId()).setVote(0);
-
+				using(convertUrl).map(source.getUser().getAvatar()).setUserAvatar(null);
+				using(listVoteUsers).map(source.getVoteUsers()).setVoteUserIds(null);
 			}
 		});
 		
@@ -89,7 +97,8 @@ public class BeanConfig {
 			@Override
 			protected void configure() {
 				using(countVoteQuestion).map(source.getId()).setVote(0);
-
+				using(convertUrl).map(source.getUser().getAvatar()).setUserAvatar(null);
+				using(listVoteUsers).map(source.getVoteUsers()).setVoteUserIds(null);
 			}
 		});
 

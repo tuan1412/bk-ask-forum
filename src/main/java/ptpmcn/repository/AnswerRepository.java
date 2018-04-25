@@ -22,7 +22,7 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
 	Long countVote(@Param("id") Long id);
 
 	@Query("select a from Answer a left join a.voteUsers u where a.id =:aid and u.id =:uid")
-	Optional<Answer> findVoted(Long id, Long uid);
+	Optional<Answer> findVoted(@Param("aid")Long id,@Param("uid") Long uid);
 	
 	@Query("select a, count(u.id) as vote, a.lastModified as time "
 			+ "from Answer a left join a.voteUsers u where a.question.id = :id group by a.id order by vote desc,time desc ")

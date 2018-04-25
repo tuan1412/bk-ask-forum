@@ -1,6 +1,7 @@
 package ptpmcn.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,7 @@ public class QuestionDto implements Serializable{
 	private String categoryName;
 	private long vote;
 	private long userId;
+	private String userUsername;
+	private String userAvatar;
+	private List<Long> voteUserIds;
 }
