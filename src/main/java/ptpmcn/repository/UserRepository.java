@@ -30,5 +30,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	
 	@Query("select (select count(a.id) from Answer a join a.voteUsers where a.user.id =:id) "
 			+"+ (select count(q.id) from Question q join q.voteUsers where q.user.id =:id) from User u")
-	Long countVote(@Param("id") Long id); 
+	Long countVote(@Param("id") Long id);
+
+	@Query("select u from User u left join u.followingUsers fu where fu.id =:id and u.id =:uid")
+	Optional<User> findFollowed(@Param("id")Long id, @Param("uid")Long uid); 
 }

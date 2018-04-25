@@ -64,5 +64,14 @@ public class UserFollowController {
 		userFollowService.unfollowUser(id);
 		return "UnFollow success";
 	}
+	
+	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
+	@PostMapping("/api/users/{id}/checkFollow")
+	public String checkFollowed(@PathVariable("id") Long id) {
+		if (userFollowService.isFollowed(id)) {
+			return "Followed";
+		}
+		throw new ResourceNotFoundException();
+	}
 
 }

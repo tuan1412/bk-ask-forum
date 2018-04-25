@@ -14,4 +14,6 @@ public interface UserFollowService {
 
 	void unfollowUser(Long id);
 
+	boolean isFollowed(Long id);
+
 }

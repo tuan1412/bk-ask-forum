@@ -41,4 +41,6 @@ public interface QuestionService {
 
 	boolean isVoted(Long id);
 
+	boolean isFollowed(Long id);
+
 }

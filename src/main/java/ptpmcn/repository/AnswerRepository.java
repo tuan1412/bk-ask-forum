@@ -27,5 +27,11 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
 	@Query("select a, count(u.id) as vote, a.lastModified as time "
 			+ "from Answer a left join a.voteUsers u where a.question.id = :id group by a.id order by vote desc,time desc ")
 	Page<Object[]> findByQuestionAndSort(@Param("id") Long id, Pageable pageable);
+	@Query("select a, count(u.id) as vote, a.lastModified as time "
+			+ "from Answer a left join a.voteUsers u where a.user.id = :id group by a.id order by vote desc,time desc ")
+	Page<Object[]> findByUserAndSort(@Param("id") Long id, Pageable pageable);
+
+	
+	
 
 }

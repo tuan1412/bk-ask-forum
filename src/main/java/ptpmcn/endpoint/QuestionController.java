@@ -186,5 +186,14 @@ public class QuestionController {
 		}
 		throw new ResourceNotFoundException();
 	}
+	
+	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
+	@PostMapping("{id}/checkFollow")
+	public String checkFollow(@PathVariable("id") Long id) {
+		if (questionService.isFollowed(id)) {
+			return "Followed";
+		}
+		throw new ResourceNotFoundException();
+	}
 
 }

@@ -56,6 +56,10 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Override
 	public Page<QuestionDto> findPaginatedByUserId(Long id, int page, int size, Direction direction, String feild) {
+		if ("vote".equals(feild)) {
+			return questionRepository.findByUserAndSortByVote(id, PageRequest.of(page, size))
+					.map(u -> modelMapper.map(u[0], QuestionDto.class));
+		}
 		return questionRepository.findByUserId(id, PageRequest.of(page, size, direction, feild))
 				.map(u -> modelMapper.map(u, QuestionDto.class));
 	}
@@ -63,6 +67,10 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public Page<QuestionDto> findPaginatedByCategory(String name, int page, int size, Direction direction,
 			String feild) {
+		if ("vote".equals(feild)) {
+			return questionRepository.findByCategoryAndSortByVote(name, PageRequest.of(page, size))
+					.map(u -> modelMapper.map(u[0], QuestionDto.class));
+		}
 		return questionRepository.findByCategory(name, PageRequest.of(page, size, direction, feild))
 				.map(u -> modelMapper.map(u, QuestionDto.class));
 	}
@@ -70,6 +78,10 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public Page<QuestionDto> findPaginatedByAnswers(int sizeOfAnswers, int page, int size, Direction direction,
 			String feild) {
+		if ("vote".equals(feild)) {
+			return questionRepository.findByAnswerAndSortByVote(sizeOfAnswers, PageRequest.of(page, size))
+					.map(u -> modelMapper.map(u[0], QuestionDto.class));
+		}
 		return questionRepository.findByAnswer(sizeOfAnswers, PageRequest.of(page, size, direction, feild))
 				.map(u -> modelMapper.map(u, QuestionDto.class));
 	}
@@ -122,6 +134,10 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public Page<QuestionDto> findPaginatedByKeyword(String keyword, int page, int size, Direction direction,
 			String feild) {
+		if ("vote".equals(feild)) {
+			return questionRepository.findByKeywordAndSortByVote(keyword, PageRequest.of(page, size))
+					.map(u -> modelMapper.map(u[0], QuestionDto.class));
+		}
 		return questionRepository.findByKeyword(keyword, PageRequest.of(page, size, direction, feild))
 				.map(u -> modelMapper.map(u, QuestionDto.class));
 	}
@@ -155,6 +171,14 @@ public class QuestionServiceImpl implements QuestionService {
 		Optional<User> currentUser = securityContextService.getCurrentUser();
 		Long uid = currentUser.get().getId();
 		Optional<Question> question = questionRepository.findVoted(id, uid);
+		return question.isPresent();
+	}
+
+	@Override
+	public boolean isFollowed(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		Long uid = currentUser.get().getId();
+		Optional<Question> question = questionRepository.findFollowed(id, uid);
 		return question.isPresent();
 	}
 }

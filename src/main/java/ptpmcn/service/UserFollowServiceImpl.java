@@ -59,4 +59,12 @@ public class UserFollowServiceImpl implements UserFollowService {
 
 	}
 
+	@Override
+	public boolean isFollowed(Long id) {
+		Optional<User> currentUser = securityContextService.getCurrentUser();
+		Long uid = currentUser.get().getId();
+		Optional<User> user = userRepository.findFollowed(id, uid);
+		return user.isPresent();
+	}
+
 }

@@ -48,6 +48,10 @@ public class AnswerServiceImpl implements AnswerService {
 
 	@Override
 	public Page<AnswerDto> findPaginatedByUserId(Long id, int page, int size, Direction direction, String feild) {
+		if ("vote".equals(feild)) {
+			return answerRepository.findByUserAndSort(id, PageRequest.of(page, size))
+					.map(a -> modelMapper.map(a[0], AnswerDto.class));
+		}
 		return answerRepository.findByUserId(id, PageRequest.of(page, size, direction, feild))
 				.map(a -> modelMapper.map(a, AnswerDto.class));
 	}
