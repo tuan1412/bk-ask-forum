@@ -106,7 +106,7 @@ public class UserController {
 		if (file != null) {
 			try {
 				storageService.store(file);
-				user.setAvatar(file.getOriginalFilename());
+				user.setAvatar(System.currentTimeMillis()+file.getOriginalFilename());
 			}catch (FileUploadException e) {
 				e.printStackTrace();
 			} 
@@ -121,5 +121,12 @@ public class UserController {
 		String passwordEncode = passwordEncoder.encode(passwordDto.getNewPassword());
 		user.setPassword(passwordEncode);
 		return userService.update(user);
+	}
+	
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@PostMapping("{id}/changeAdmin")
+	public SuccessDto changeAndmin(@PathVariable("id") Long id) {
+		userService.changeAdmin(id);
+		return new SuccessDto();
 	}
 }

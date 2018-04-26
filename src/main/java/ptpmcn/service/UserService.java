@@ -24,6 +24,8 @@ public interface UserService extends UserDetailsService {
 	void banUser(Long id);
 
 	void unbanUser(Long id);
+
+	void changeAdmin(Long id);
 	
 
 }

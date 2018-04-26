@@ -104,4 +104,15 @@ public class UserServiceImpl implements UserService {
 		user = userRepository.save(user);
 		return modelMapper.map(user, UserDto.class);
 	}
+
+	@Override
+	public void changeAdmin(Long id) {
+		Optional<User> userOptional = userRepository.findById(id);
+		User user = userOptional.orElseThrow(ResourceNotFoundException::new);
+		Role memberRole = roleRepository.findOneByName("MEMBER").get();
+		if (user.isAdmin() || !user.getRoles().contains(memberRole)) {
+			throw new ForbiddenException();
+		}
+		user.addRole(roleRepository.findOneByName("ADMIN").get());;
+	}
 }
