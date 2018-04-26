@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ptpmcn.dto.AnswerCreateDto;
 import ptpmcn.dto.AnswerDto;
 import ptpmcn.dto.PaginatedParam;
+import ptpmcn.dto.SuccessDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Answer;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
@@ -88,8 +89,9 @@ public class AnswerController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/delete")
-	public void deleteAnswer(@PathVariable("id") Long id) {
+	public SuccessDto deleteAnswer(@PathVariable("id") Long id) {
 		answerService.delete(id);
+		return new SuccessDto();
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
@@ -111,9 +113,9 @@ public class AnswerController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/check")
-	public String checkVote(@PathVariable("id") Long id) {
+	public SuccessDto checkVote(@PathVariable("id") Long id) {
 		if (answerService.isVoted(id)) {
-			return "Voted";
+			return new SuccessDto();
 		}
 		throw new ResourceNotFoundException();
 	}

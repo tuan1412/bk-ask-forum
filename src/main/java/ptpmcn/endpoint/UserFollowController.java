@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import ptpmcn.dto.PaginatedParam;
+import ptpmcn.dto.SuccessDto;
 import ptpmcn.dto.UserDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.User;
@@ -52,24 +53,24 @@ public class UserFollowController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/users/{id}/follow")
-	public String followUser(@PathVariable("id") Long id) {
+	public SuccessDto followUser(@PathVariable("id") Long id) {
 		userFollowService.followUser(id);
-		return "Follow success";
+		return new SuccessDto();
 
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/users/{id}/unfollow")
-	public String unfollowUser(@PathVariable("id") Long id) {
+	public SuccessDto unfollowUser(@PathVariable("id") Long id) {
 		userFollowService.unfollowUser(id);
-		return "UnFollow success";
+		return new SuccessDto();
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/users/{id}/checkFollow")
-	public String checkFollowed(@PathVariable("id") Long id) {
+	public SuccessDto checkFollowed(@PathVariable("id") Long id) {
 		if (userFollowService.isFollowed(id)) {
-			return "Followed";
+			return new SuccessDto();
 		}
 		throw new ResourceNotFoundException();
 	}

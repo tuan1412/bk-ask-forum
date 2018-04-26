@@ -23,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import ptpmcn.dto.PaginatedParam;
 import ptpmcn.dto.PasswordDto;
+import ptpmcn.dto.SuccessDto;
 import ptpmcn.dto.UserDto;
 import ptpmcn.dto.UserRegistrationDto;
 import ptpmcn.dto.UserUpdateDto;
@@ -82,16 +83,16 @@ public class UserController {
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("{id}/ban")
-	public String banUser(@PathVariable("id") Long id) {
+	public SuccessDto banUser(@PathVariable("id") Long id) {
 		userService.banUser(id);
-		return "Ban user success";
+		return new SuccessDto();
 	}
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("{id}/unban")
-	public String unbanUser(@PathVariable("id") Long id) {
+	public SuccessDto unbanUser(@PathVariable("id") Long id) {
 		userService.unbanUser(id);
-		return "Unban user success";
+		return new SuccessDto();
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")

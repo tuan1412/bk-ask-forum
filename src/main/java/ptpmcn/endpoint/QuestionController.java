@@ -26,6 +26,7 @@ import ptpmcn.dto.PaginatedParam;
 import ptpmcn.dto.QuestionCreateDto;
 import ptpmcn.dto.QuestionDto;
 import ptpmcn.dto.QuestionSearchDto;
+import ptpmcn.dto.SuccessDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Question;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
@@ -180,19 +181,18 @@ public class QuestionController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/check")
-	public String checkVote(@PathVariable("id") Long id) {
+	public SuccessDto checkVote(@PathVariable("id") Long id) {
 		if (questionService.isVoted(id)) {
-			return "Voted";
+			return new SuccessDto();
 		}
 		throw new ResourceNotFoundException();
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/checkFollow")
-	public String checkFollow(@PathVariable("id") Long id) {
+	public SuccessDto checkFollow(@PathVariable("id") Long id) {
 		if (questionService.isFollowed(id)) {
-			return "Followed";
-		}
+			return new SuccessDto();		}
 		throw new ResourceNotFoundException();
 	}
 

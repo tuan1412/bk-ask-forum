@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import ptpmcn.dto.PaginatedParam;
 import ptpmcn.dto.QuestionDto;
+import ptpmcn.dto.SuccessDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Question;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
@@ -52,15 +53,15 @@ public class QuestionFollowController {
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/questions/{id}/follow")
-	public String followQuestion(@PathVariable("id") Long id) {
+	public SuccessDto followQuestion(@PathVariable("id") Long id) {
 		questionFollowService.followQuestion(id);
-		return "Follow success";
+		return new SuccessDto();
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/api/questions/{id}/unfollow")
-	public String unfollowQuestion(@PathVariable("id") Long id) {
+	public SuccessDto unfollowQuestion(@PathVariable("id") Long id) {
 		questionFollowService.unfollowQuestion(id);
-		return "UnFollow success";
+		return new SuccessDto();
 	}
 }

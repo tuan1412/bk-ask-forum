@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import ptpmcn.dto.PaginatedParam;
+import ptpmcn.dto.SuccessDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Category;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
@@ -64,15 +65,17 @@ public class CategoryController {
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("{id}/delete")
-	public void deleteCategory(@PathVariable("id") Long id) {
+	public SuccessDto  deleteCategry(@PathVariable("id") Long id) {
 		categoryService.delete(id);
+		return new SuccessDto();
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMIN')")
 	@PostMapping("{id}/update")
-	public void updateCategory(@PathVariable("id") Long id, @Valid @RequestBody Category category) {
+	public SuccessDto updateCategory(@PathVariable("id") Long id, @Valid @RequestBody Category category) {
 		if (!categoryService.update(id, category)) {
 			throw new ResourceNotFoundException();
 		}
+		return new SuccessDto();
 	}
 }
