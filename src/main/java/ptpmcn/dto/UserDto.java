@@ -22,5 +22,6 @@ public class UserDto implements Serializable {
 	private long vote;
 	private int followers;
 	private boolean banned;
+	private boolean isAdmin;
 	
 }

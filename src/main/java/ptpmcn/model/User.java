@@ -99,18 +99,14 @@ public class User implements UserDetails {
 	
 	@Transient
 	private int followers;
-//	@Transient
-//	private int vote;
+	
+	@Transient
+	private boolean isAdmin;
+
 	@PostLoad
 	private void postLoad() {
-//		int answerVote = answers.stream()
-//								.map(Answer::getVote)
-//								.reduce(Integer::sum)
-//								.orElse(0);
-//		vote = answerVote;
-		
+		isAdmin = this.isAdmin();
 		followers = followingUsers.size();
-		
 		banned = roles.isEmpty();
 	}
 	
