@@ -127,14 +127,14 @@ public class QuestionController {
 
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("{id}/delete")
-	public QuestionDto delete(@PathVariable("id") Long id) {
+	public SuccessDto delete(@PathVariable("id") Long id) {
 		Optional<Question> question = questionService.findOneById(id);
 		question.ifPresent(q -> {
 			questionService.deleteById(id);
 		});
 		question.orElseThrow(ResourceNotFoundException::new);
 
-		return questionService.map(question.get());
+		return new SuccessDto();
 	}
 
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
