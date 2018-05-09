@@ -1,6 +1,10 @@
 package ptpmcn.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
@@ -114,5 +118,27 @@ public class UserServiceImpl implements UserService {
 			throw new ForbiddenException();
 		}
 		user.addRole(roleRepository.findOneByName("ADMIN").get());;
+	}
+
+	@Override
+	public List<Long> findNotifyUser(Long uid, Long qid) {
+		List<User> followedUsers = userRepository.findFollowedUser(uid);
+		List<User> followedQuestionUsers = userRepository.findFollowedQuestion(qid);
+		
+		List<User> users = Stream.of(followedUsers, followedQuestionUsers).collect(ArrayList::new, List::addAll, List::addAll);
+		List<Long> notDuplicateUserIds = users.stream()
+												.map(u -> u.getId())
+												.distinct()
+												.filter(x-> !x.equals(uid))
+												.collect(Collectors.toList());
+		notDuplicateUserIds.stream().forEach(System.out::println);
+
+		return notDuplicateUserIds;
+	}
+
+	@Override
+	public List<Long> findNotifyUser(Long uid) {
+		List<User> followedUsers = userRepository.findFollowedUser(uid);
+		return followedUsers.stream().map(x -> x.getId()).collect(Collectors.toList());
 	}
 }

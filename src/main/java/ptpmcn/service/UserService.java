@@ -1,5 +1,6 @@
 package ptpmcn.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -20,7 +21,12 @@ public interface UserService extends UserDetailsService {
 	UserDto update(User user);
 
 	Page<UserDto> findPaginated(int page, int size, Direction direction, String feild);
+	
+	List<Long> findNotifyUser(Long uid, Long qid);
+	
+	List<Long> findNotifyUser(Long uid);
 
+	
 	void banUser(Long id);
 
 	void unbanUser(Long id);

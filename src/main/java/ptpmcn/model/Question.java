@@ -83,6 +83,10 @@ public class Question implements Serializable{
 	@ManyToMany(mappedBy="voteQuestions")
 	private Set<User> voteUsers = new HashSet<>();
 	
+	@JsonIgnore
+	@OneToMany(mappedBy = "question", orphanRemoval = true, cascade = CascadeType.ALL)
+	private Set<Notification> notifications = new HashSet<>();
+	
 	
 	public void addAnswer(Answer answer) {
 		answers.add(answer);

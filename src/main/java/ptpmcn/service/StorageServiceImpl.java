@@ -1,5 +1,6 @@
 package ptpmcn.service;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,12 +14,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class StorageServiceImpl implements StorageService {
-	private final Path rootLocation = Paths.get("src/main/resources/upload");
+	private final Path rootLocation = Paths.get("uploads/");
 	 
 	@Override
-	public void store(MultipartFile file) {
+	public String store(MultipartFile file) {
 		try {
-			Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
+			String fileName = System.currentTimeMillis()+file.getOriginalFilename();
+			Files.copy(file.getInputStream(), this.rootLocation.resolve(fileName));
+			return fileName;
 		} catch (Exception e) {
 			throw new RuntimeException("FAIL!");
 		}
@@ -39,11 +42,20 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
  
+ 
 	@Override
 	public void deleteAll() {
 		FileSystemUtils.deleteRecursively(rootLocation.toFile());
 	}
  
+	@Override
+	public void init() {
+		try {
+			Files.createDirectory(rootLocation);
+		} catch (IOException e) {
+			throw new RuntimeException("Could not initialize storage!");
+		}
+	}
 
 }
 

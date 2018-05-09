@@ -64,7 +64,7 @@ public class BeanConfig {
 		});
 
 		Converter<String, String> convertUrl = ctx -> ServletUriComponentsBuilder.fromCurrentContextPath()
-				.path("/upload/" + ctx.getSource()).build().encode().toUriString();
+				.path("/files/" + ctx.getSource()).build().encode().toUriString();
 		Converter<Long, Long> countVoteUser = ctx -> userRepository.countVote(ctx.getSource());
 
 		modelMapper.addMappings(new PropertyMap<User, UserDto>() {

@@ -1,5 +1,6 @@
 package ptpmcn.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -32,6 +33,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 			+"+ (select count(q.id) from Question q join q.voteUsers where q.user.id =:id) from User u")
 	Long countVote(@Param("id") Long id);
 
-	@Query("select u from User u left join u.followingUsers fu where fu.id =:id and u.id =:uid")
+	@Query("select u from User u left join u.followingUsers fu where fu.id =:uid and u.id =:id")
 	Optional<User> findFollowed(@Param("id")Long id, @Param("uid")Long uid); 
+	
+	@Query("select u from User u left join u.followedUsers fu where fu.id = :id")
+	List<User> findFollowedUser (@Param("id") Long id);
+	
+	@Query("select u from User u left join u.followQuestions q where q.id = :id")
+	List<User> findFollowedQuestion(@Param("id") Long id);
 }

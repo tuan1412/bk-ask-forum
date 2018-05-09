@@ -1,6 +1,7 @@
 package ptpmcn.endpoint;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -10,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,8 +27,12 @@ import ptpmcn.dto.PaginatedParam;
 import ptpmcn.dto.SuccessDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Answer;
+import ptpmcn.model.User;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
 import ptpmcn.service.AnswerService;
+import ptpmcn.service.NotificationService;
+import ptpmcn.service.SecurityContextService;
+import ptpmcn.service.UserService;
 
 @RestController
 @RequestMapping("/api/answers")
@@ -37,6 +43,18 @@ public class AnswerController {
 	
 	@Autowired
 	private AnswerService answerService;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private SecurityContextService securityContextService;
+	
+	@Autowired
+	private SimpMessagingTemplate template;
+	
+	@Autowired
+	private NotificationService notificationService;
 	
 	@PostMapping("user/{id}/paginated")
 	public List<AnswerDto> getPageAnswers(@RequestBody PaginatedParam params, @PathVariable("id") Long id,
@@ -77,8 +95,13 @@ public class AnswerController {
 	@PostMapping("question/{id}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public AnswerDto createAnswer(@Valid@RequestBody AnswerCreateDto answerDto, @PathVariable("id") Long id){
-		return answerService.createAnswer(id, answerDto);
-
+		AnswerDto dto =  answerService.createAnswer(id, answerDto);
+		
+		Optional<User> opUser =  securityContextService.getCurrentUser();
+		Long uid = opUser.get().getId();
+		List<Long> userIds = userService.findNotifyUser(uid, id);
+		userIds.stream().forEach(x -> template.convertAndSend("/notify/" + x, notificationService.createNotification(x, id)));
+		return dto;
 	}
 	
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")

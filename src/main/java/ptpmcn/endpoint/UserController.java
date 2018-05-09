@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +26,6 @@ import ptpmcn.dto.PasswordDto;
 import ptpmcn.dto.SuccessDto;
 import ptpmcn.dto.UserDto;
 import ptpmcn.dto.UserRegistrationDto;
-import ptpmcn.dto.UserUpdateDto;
 import ptpmcn.errorhandling.FileUploadException;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.User;
@@ -38,16 +37,16 @@ import ptpmcn.service.UserService;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private SecurityContextService securityContextService;
-	
+
 	@Autowired
 	private StorageService storageService;
-	
+
 	@Autowired
 	private ApplicationEventPublisher eventPublisher;
 
@@ -61,12 +60,11 @@ public class UserController {
 	}
 
 	@PostMapping("/paginated")
-	public List<UserDto> getPageUser(@RequestBody PaginatedParam params, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
-		
-		Page<UserDto> resultPage = userService.findPaginated(params.getPage(), 
-															params.getSize(), 
-															params.getDirection(),
-															params.getFeild());
+	public List<UserDto> getPageUser(@RequestBody PaginatedParam params, UriComponentsBuilder uriBuilder,
+			HttpServletResponse response) {
+
+		Page<UserDto> resultPage = userService.findPaginated(params.getPage(), params.getSize(), params.getDirection(),
+				params.getFeild());
 		if (params.getPage() > resultPage.getTotalPages()) {
 			throw new ResourceNotFoundException();
 		}
@@ -94,35 +92,32 @@ public class UserController {
 		userService.unbanUser(id);
 		return new SuccessDto();
 	}
-	
+
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/changeProfile")
-	public UserDto changeProfile(@RequestPart("user") @Valid UserUpdateDto userDto, 
-								@RequestPart("file") MultipartFile file) {
-		
+	public UserDto changeProfile(@RequestParam("file") MultipartFile file) {
+
 		User user = securityContextService.getCurrentUser().orElseThrow(ResourceNotFoundException::new);
-		user.setFullname(userDto.getFullname());
-		user.setEmail(userDto.getEmail());
 		if (file != null) {
 			try {
-				storageService.store(file);
-				user.setAvatar(System.currentTimeMillis()+file.getOriginalFilename());
-			}catch (FileUploadException e) {
+				String fileName = storageService.store(file);
+				user.setAvatar(fileName);
+			} catch (FileUploadException e) {
 				e.printStackTrace();
-			} 
+			}
 		}
-		return userService.update(user);	
+		return userService.update(user);
 	}
-	
+
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping("/changePass")
-	public UserDto changePass(@Valid@RequestBody PasswordDto passwordDto) {
+	public UserDto changePass(@Valid @RequestBody PasswordDto passwordDto) {
 		User user = securityContextService.getCurrentUser().orElseThrow(ResourceNotFoundException::new);
 		String passwordEncode = passwordEncoder.encode(passwordDto.getNewPassword());
 		user.setPassword(passwordEncode);
 		return userService.update(user);
 	}
-	
+
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("{id}/changeAdmin")
 	public SuccessDto changeAndmin(@PathVariable("id") Long id) {

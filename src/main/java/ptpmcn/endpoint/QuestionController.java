@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +30,12 @@ import ptpmcn.dto.QuestionSearchDto;
 import ptpmcn.dto.SuccessDto;
 import ptpmcn.errorhandling.ResourceNotFoundException;
 import ptpmcn.model.Question;
+import ptpmcn.model.User;
 import ptpmcn.pagination.PaginatedResultsRetrievedEvent;
+import ptpmcn.service.NotificationService;
 import ptpmcn.service.QuestionService;
+import ptpmcn.service.SecurityContextService;
+import ptpmcn.service.UserService;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -41,12 +46,31 @@ public class QuestionController {
 
 	@Autowired
 	private QuestionService questionService;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private SecurityContextService securityContextService;
+	
+	@Autowired
+	private SimpMessagingTemplate template;
+	
+	@Autowired
+	private NotificationService notificationService;
 
 	@PreAuthorize("hasAnyAuthority({'ADMIN', 'MEMBER'})")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public QuestionDto save(@Valid @RequestBody QuestionCreateDto questionDto) {
-		return questionService.save(questionDto);
+		QuestionDto question = questionService.save(questionDto);
+		Long qid = question.getId();
+		Optional<User> opUser =  securityContextService.getCurrentUser();
+		Long uid = opUser.get().getId();
+		List<Long> userIds = userService.findNotifyUser(uid);
+		userIds.stream().forEach(x -> template.convertAndSend("/notify/" + x, notificationService.createQuestionNotification(x, qid)));
+
+		return question;
 	}
 
 	@PostMapping("user/{id}/paginated")

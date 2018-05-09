@@ -35,7 +35,7 @@ public class AuthController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		 return securityContextService.getCurrentUser().map(u -> {
 	            final String token = tokenHandler.createTokenForUser(u);
-	            return new AuthResponse(token, u.getId());
+	            return new AuthResponse(token, u.getId(), u.isAdmin());
 	        }).orElseThrow(RuntimeException::new); 
 		
 	}
@@ -78,15 +78,17 @@ public class AuthController {
 	public static final class AuthResponse {
 		private String token;
 		private long id;
+		private boolean isAdmin;
 
 		public AuthResponse() {
 			
 		}
 		
-		public AuthResponse(String token, long id) {
+		public AuthResponse(String token, long id, boolean isAdmin) {
 			super();
 			this.token = token;
 			this.id = id;
+			this.setAdmin(isAdmin);
 		}
 
 		public String getToken() {
@@ -103,6 +105,14 @@ public class AuthController {
 		
 		public void setId(Long id) {
 			this.id = id;
+		}
+
+		public boolean isAdmin() {
+			return isAdmin;
+		}
+
+		public void setAdmin(boolean isAdmin) {
+			this.isAdmin = isAdmin;
 		}
 	}
 
