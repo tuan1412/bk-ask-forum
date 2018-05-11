@@ -57,7 +57,7 @@ public class NotificationServiceImpl implements NotificationService {
 		User currentUser = securityContextService.getCurrentUser().get();
 		Question question = questionRepository.findById(qid).get();
 		Notification noti = new Notification();
-		String content = currentUser.getFullname() + " đã tạo câu hỏi " + question.getTitle();
+		String content = currentUser.getUsername() + " đã tạo câu hỏi " + question.getTitle();
 		
 		noti.setContent(content);
 		noti.setQuestion(question);

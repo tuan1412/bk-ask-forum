@@ -23,8 +23,10 @@ import ptpmcn.dto.UserDto;
 import ptpmcn.dto.UserRegistrationDto;
 import ptpmcn.errorhandling.ForbiddenException;
 import ptpmcn.errorhandling.ResourceNotFoundException;
+import ptpmcn.model.Question;
 import ptpmcn.model.Role;
 import ptpmcn.model.User;
+import ptpmcn.repository.QuestionRepository;
 import ptpmcn.repository.RoleRepository;
 import ptpmcn.repository.UserRepository;
 
@@ -40,6 +42,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private RoleRepository roleRepository;
+	
+	@Autowired
+	private QuestionRepository questionRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -124,16 +129,20 @@ public class UserServiceImpl implements UserService {
 	public List<Long> findNotifyUser(Long uid, Long qid) {
 		List<User> followedUsers = userRepository.findFollowedUser(uid);
 		List<User> followedQuestionUsers = userRepository.findFollowedQuestion(qid);
+		Question question = questionRepository.findById(qid).get();
+		User author = question.getUser();
+		followedQuestionUsers.add(author);
 		
 		List<User> users = Stream.of(followedUsers, followedQuestionUsers).collect(ArrayList::new, List::addAll, List::addAll);
-		List<Long> notDuplicateUserIds = users.stream()
+		List<Long> userIds = users.stream()
 												.map(u -> u.getId())
 												.distinct()
-												.filter(x-> !x.equals(uid))
 												.collect(Collectors.toList());
-		notDuplicateUserIds.stream().forEach(System.out::println);
-
-		return notDuplicateUserIds;
+		
+		if (author.getId().equals(uid)) {
+			userIds.removeIf(x -> x.equals(uid));
+		}
+		return userIds;
 	}
 
 	@Override
