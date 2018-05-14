@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import ptpmcn.model.Notification;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long>{
-	@Query("select noti from Notification noti where noti.user.id = :id order by noti.seen desc, noti.createAt desc")
+	@Query("select noti from Notification noti where noti.user.id = :id order by noti.seen asc, noti.createAt desc")
 	Page<Notification> findAllByUserId(@Param("id") Long id, Pageable pageable);
 	
 	@Query("select count(noti.id) from Notification noti where noti.user.id = :id and noti.seen = false")

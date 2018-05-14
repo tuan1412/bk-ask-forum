@@ -139,9 +139,9 @@ public class UserServiceImpl implements UserService {
 												.distinct()
 												.collect(Collectors.toList());
 		
-		if (author.getId().equals(uid)) {
+//		if (author.getId().equals(uid)) {
 			userIds.removeIf(x -> x.equals(uid));
-		}
+//		}
 		return userIds;
 	}
 
